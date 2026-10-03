@@ -26,19 +26,30 @@
     </div>
   </section>
 
+  <section class="maker-intro container" aria-labelledby="maker-title">
+    <figure class="maker-photo"><img src="{{assets.navya1}}&width=700" alt="Navya in a floral dress and burgundy jacket under string lights" width="700" height="1394" loading="lazy"></figure>
+    <div class="maker-text">
+      <h2 id="maker-title" class="section-title">Handmade by Navya</h2>
+      <p>Navya dreamed of becoming a jewelry designer when she was five years old, and every piece in this collection is designed and made by her hand.</p>
+      <p>In fourth grade she sold her handmade polymer clay jewelry and raised $10,000 for the Atlanta Community Food Bank in under two months. Half of every sale still goes to the food bank and other community causes.</p>
+      <a class="btn btn-outline" href="/about">Meet Navya</a>
+    </div>
+  </section>
+
   <section class="section container" aria-labelledby="collection-title">
     <h2 id="collection-title" class="section-title">Collection</h2>
-    <div class="product-grid" data-grid="home">{{grid}}</div>
+    {{toolbar}}
+    <div class="product-grid" data-grid="home" data-view="gallery">{{grid}}</div>
   </section>
 
   <section class="feature-pair" data-feature-pair aria-label="Featured pieces">{{featurePair}}</section>
 
   <section class="section section-gap container" aria-labelledby="best-title">
-    <h2 id="best-title" class="section-title">Bestseller</h2>
+    <h2 id="best-title" class="section-title">Best sellers</h2>
     <p class="lede">Navratna by Navya embodies a tradition of artisanal craftsmanship, where each piece of jewelry is a narrative woven from seasonal inspiration. The brand thrives on creating lightweight, small-batch adornments that elevate personal stories into wearable art.</p>
   </section>
 
-  <section class="strip container" aria-label="Bestsellers">
+  <section class="strip container" aria-label="Best sellers">
     <div class="grid" data-bestsellers>{{bestsellers}}</div>
   </section>
 

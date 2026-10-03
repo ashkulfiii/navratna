@@ -26,6 +26,10 @@ export const config = {
     shareImage: 'https://cdn.shopify.com/s/files/1/0777/4509/4855/files/navratna-logo-full-hero.png?v=1790991164',
   },
 
+  // Set to true once the store address and contact email in Shopify (Settings → Store details)
+  // are correct: the privacy page will then show Shopify's own policy, refreshed on every build.
+  policies: { privacyFromShopify: false },
+
   contact: {
     email: 'hello@navratnanavya.com',
     instagram: 'navratnanavya',

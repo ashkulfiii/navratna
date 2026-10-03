@@ -7,14 +7,18 @@ Custom storefront for navratnanavya.com. Shopify holds products, inventory, orde
 - `src/pages/*.html` — one file per page. The `<!-- page {...} -->` header sets the URL, title bar and meta description.
 - `src/layout/` — header, footer and cart drawer shared by every page.
 - `src/assets/site.css` — all styles. Colour and font tokens sit at the top in `:root`.
-- `src/assets/site.js` — live products and cart from Shopify's Storefront API (tokenless, no keys), cart drawer, product pages.
+- `src/assets/site.js` — live products and cart from Shopify's Storefront API (tokenless, no keys), cart drawer with discount codes and "Save for later", product pages, collection toolbar (sort, color filter, three layouts), saved pieces.
+- `src/assets/render.js` — product card and tile markup shared by `build.mjs` and `site.js`. Change cards here only.
+- `src/pages/saved.html` — the hearted pieces page. Saved pieces live in the shopper's browser (localStorage), so they are per device.
+- Color filter reads Shopify product tags written as `Color: Pink`. It stays hidden until at least one product has such a tag.
+- Privacy page: `config.policies.privacyFromShopify` switches it to Shopify's own policy. Keep it `false` until the store address and email in Shopify are correct.
 - `build.mjs` — `node build.mjs` writes the finished site to `dist/`, with one pre-rendered page per product, plus `sitemap.xml` and `robots.txt`.
 
 ## Rules for editing
 - Prices, stock, product photos and descriptions are edited in Shopify admin (or through the Shopify connector), never hard-coded here.
 - Checkout always goes to Shopify's hosted checkout via `cart.checkoutUrl`.
 - Products added in Shopify appear on the site immediately (the browser loads them live). A redeploy adds their pre-rendered page for search engines.
-- Keep the two card renderers in `build.mjs` and `site.js` in step, so live data swaps in without a layout jump.
+- Keep product card markup in `src/assets/render.js` so build-time and live cards match.
 - Run `node build.mjs` after every change and check it finishes without errors before pushing.
 
 ## Deploy (Cloudflare Workers, account ash@kulfiii.com)

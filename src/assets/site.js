@@ -2,20 +2,23 @@
 // Talks to Shopify's Storefront API (tokenless) for live products and the cart.
 // Checkout is Shopify's own hosted checkout (cart.checkoutUrl).
 
+import { esc, money, img, ICON, colorsOf, cardHTML, tilesHTML, EMPTY_GRID } from './render.js';
+
 const CFG = window.NAVRATNA;
 const API = `https://${CFG.shopify.domain}/api/${CFG.shopify.apiVersion}/graphql.json`;
 const CART_KEY = 'navratna_cart_id';
+const SAVED_KEY = 'navratna_saved';
+const VIEW_KEY = 'navratna_view';
 
 /* ---------- helpers ---------- */
 const $ = (s, r = document) => r.querySelector(s);
-const esc = (s = '') => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const money = m => `${m.currencyCode} ${Number(m.amount).toFixed(2)}`;
-const img = (url, w) => (url ? `${url}${url.includes('?') ? '&' : '?'}width=${w}` : '');
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const store = {
   get(k) { try { return localStorage.getItem(k); } catch { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch {} },
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
+const announce = msg => { const el = $('[data-announce]'); if (el) { el.textContent = ''; setTimeout(() => { el.textContent = msg; }, 30); } };
 
 async function gql(query, variables = {}) {
   const res = await fetch(API, {
@@ -31,7 +34,7 @@ async function gql(query, variables = {}) {
 
 /* ---------- product data ---------- */
 const PRODUCT_FIELDS = `
-  id handle title description descriptionHtml availableForSale vendor
+  id handle title description descriptionHtml availableForSale vendor createdAt tags
   seo { title description }
   featuredImage { url altText width height }
   images(first: 10) { nodes { url altText width height } }
@@ -49,25 +52,93 @@ const fetchCollection = async handle =>
 const fetchProduct = async handle =>
   (await gql(`query($h: String!) { product(handle: $h) { ${PRODUCT_FIELDS} } }`, { h: handle })).product;
 
-/* ---------- renderers (mirror build.mjs so live data swaps in without a layout shift) ---------- */
-function cardHTML(p) {
-  const image = p.featuredImage || p.images?.nodes?.[0];
-  const sold = !p.availableForSale;
-  return `<a href="/product/${esc(p.handle)}" class="card">
-    <div class="frame">
-      ${image ? `<img src="${esc(img(image.url, 900))}" alt="${esc(image.altText || p.title)}" loading="lazy" width="900" height="1125">` : ''}
-      <span class="view">View piece</span>
-    </div>
-    <div class="row"><h3>${esc(p.title)}</h3><p class="price${sold ? ' sold-out' : ''}">${sold ? 'Sold out' : money(p.priceRange.minVariantPrice)}</p></div>
-    <p class="maker">Navratna by Navya</p>
-  </a>`;
+async function fetchByHandles(handles) {
+  if (!handles.length) return [];
+  const fields = handles.map((_, i) => `p${i}: product(handle: $h${i}) { ${PRODUCT_FIELDS} }`).join('\n');
+  const vars = handles.map((_, i) => `$h${i}: String!`).join(', ');
+  const d = await gql(`query(${vars}) { ${fields} }`, Object.fromEntries(handles.map((h, i) => [`h${i}`, h])));
+  return handles.map((_, i) => d[`p${i}`]).filter(Boolean);
+}
+
+/* ---------- saved for later (stored in this browser) ---------- */
+const saved = {
+  list() { try { return JSON.parse(store.get(SAVED_KEY) || '[]'); } catch { return []; } },
+  has(h) { return this.list().includes(h); },
+  write(list) { store.set(SAVED_KEY, JSON.stringify(list)); this.paint(); },
+  add(h) { if (!this.has(h)) this.write([h, ...this.list()]); },
+  remove(h) { this.write(this.list().filter(x => x !== h)); },
+  toggle(h) { this.has(h) ? this.remove(h) : this.add(h); return this.has(h); },
+  paint() {
+    const list = this.list();
+    $$('[data-saved-count]').forEach(el => { el.textContent = list.length; el.hidden = !list.length; });
+    const link = $('[data-saved-link]');
+    if (link) link.setAttribute('aria-label', list.length ? `Saved pieces, ${list.length}` : 'Saved pieces');
+    $$('[data-heart]').forEach(b => b.setAttribute('aria-pressed', list.includes(b.dataset.heart)));
+    const pdpSave = $('[data-save]');
+    if (pdpSave) {
+      const on = list.includes(pdpSave.dataset.save);
+      pdpSave.setAttribute('aria-pressed', on);
+      pdpSave.textContent = on ? 'Saved for later' : 'Save for later';
+    }
+  },
+};
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-heart]');
+  if (!b) return;
+  e.preventDefault();
+  const on = saved.toggle(b.dataset.heart);
+  announce(on ? 'Saved for later' : 'Removed from saved pieces');
+  if (!on && b.closest('[data-saved-grid]')) b.closest('.card')?.remove(), renderSavedEmpty();
+});
+
+/* ---------- collection grid: sort, colour filter and view switch ---------- */
+const SORTS = {
+  featured: list => list,
+  newest: list => [...list].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')),
+  oldest: list => [...list].sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || '')),
+  'price-asc': list => [...list].sort((a, b) => a.priceRange.minVariantPrice.amount - b.priceRange.minVariantPrice.amount),
+  'price-desc': list => [...list].sort((a, b) => b.priceRange.minVariantPrice.amount - a.priceRange.minVariantPrice.amount),
+};
+
+function setView(view) {
+  $$('[data-grid]').forEach(g => { g.dataset.view = view; });
+  $$('[data-view]').forEach(b => b.setAttribute('aria-pressed', b.dataset.view === view));
+  store.set(VIEW_KEY, view);
+}
+
+function wireToolbar(products) {
+  const grid = $('[data-grid]');
+  const bar = $('[data-toolbar]');
+  if (!grid || !bar) return;
+  const sortEl = $('[data-sort]', bar);
+  const colorEl = $('[data-color]', bar);
+  const countEl = $('[data-count]', bar);
+
+  const colors = [...new Set(products.flatMap(colorsOf))].sort();
+  if (colors.length) {
+    colorEl.innerHTML = '<option value="">All colors</option>' + colors.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+    $('[data-color-wrap]', bar).hidden = false;
+  }
+
+  const paint = () => {
+    const color = colorEl.value;
+    const list = SORTS[sortEl.value](products).filter(p => !color || colorsOf(p).includes(color));
+    grid.innerHTML = list.length ? list.map(p => cardHTML(p, { saved: saved.has(p.handle) })).join('') : (products.length ? '<p class="lede">No pieces in this color yet.</p>' : EMPTY_GRID);
+    countEl.textContent = `${list.length} ${list.length === 1 ? 'piece' : 'pieces'}`;
+  };
+  sortEl.onchange = paint;
+  colorEl.onchange = paint;
+  $$('[data-view]', bar).forEach(b => { b.onclick = () => setView(b.dataset.view); });
+  paint();
 }
 
 async function hydrateGrids() {
-  const grids = document.querySelectorAll('[data-grid]');
+  const grid = $('[data-grid]');
   const strip = $('[data-bestsellers]');
   const pair = $('[data-feature-pair]');
-  if (!grids.length && !strip && !pair) return;
+  if (!grid && !strip && !pair) return;
+  setView(store.get(VIEW_KEY) || 'gallery');
   let products;
   try {
     const src = CFG.shopify.homeCollection;
@@ -77,27 +148,45 @@ async function hydrateGrids() {
     if (!products) products = await fetchProducts();
   } catch (e) {
     console.warn('Live products unavailable, keeping build-time grid.', e);
+    $$('[data-toolbar]').forEach(t => { t.hidden = true; });
+    saved.paint();
     return;
   }
-  grids.forEach(g => {
-    g.innerHTML = products.length
-      ? products.map(cardHTML).join('')
-      : '<p class="lede">New pieces are on the way. Check back soon.</p>';
-  });
+  if (grid) wireToolbar(products);
   const byHandle = Object.fromEntries(products.map(p => [p.handle, p]));
   const picks = CFG.shopify.bestsellers.map(h => byHandle[h]).filter(Boolean);
   const list = (picks.length ? picks : products).slice(0, 3);
-  if (strip) {
-    strip.innerHTML = list.map(p => {
-      const i = p.featuredImage || p.images.nodes[0];
-      return `<a class="tile" href="/product/${esc(p.handle)}" aria-label="${esc(p.title)}">${i ? `<img src="${esc(img(i.url, 900))}" alt="${esc(i.altText || p.title)}" loading="lazy">` : ''}</a>`;
-    }).join('');
+  if (strip) strip.innerHTML = tilesHTML(list, 900);
+  if (pair) pair.innerHTML = tilesHTML(list.slice(0, 2), 1400);
+  saved.paint();
+}
+
+/* ---------- saved page ---------- */
+function renderSavedEmpty() {
+  const g = $('[data-saved-grid]');
+  if (g && !g.querySelector('.card')) {
+    g.hidden = true;
+    $('[data-saved-empty]').hidden = false;
   }
-  if (pair) {
-    pair.innerHTML = list.slice(0, 2).map(p => {
-      const i = p.featuredImage || p.images.nodes[0];
-      return `<a class="tile" href="/product/${esc(p.handle)}" aria-label="${esc(p.title)}">${i ? `<img src="${esc(img(i.url, 1400))}" alt="${esc(i.altText || p.title)}" loading="lazy">` : ''}</a>`;
-    }).join('');
+}
+
+async function renderSavedPage() {
+  const g = $('[data-saved-grid]');
+  if (!g) return;
+  const handles = saved.list();
+  if (!handles.length) { renderSavedEmpty(); return; }
+  try {
+    const products = await fetchByHandles(handles);
+    g.innerHTML = products.map(p => cardHTML(p, { saved: true })).join('');
+    g.hidden = false;
+    $('[data-saved-empty]').hidden = true;
+    // Drop pieces that no longer exist in the store.
+    const live = products.map(p => p.handle);
+    if (live.length !== handles.length) saved.write(handles.filter(h => live.includes(h)));
+    renderSavedEmpty();
+  } catch (e) {
+    g.innerHTML = '<p class="lede">We could not load your saved pieces. Please refresh the page.</p>';
+    g.hidden = false;
   }
 }
 
@@ -110,7 +199,7 @@ async function renderProductPage() {
 
   let p;
   try { p = await fetchProduct(handle); } catch (e) {
-    if (root.dataset.prerendered) { wirePdp(root, JSON.parse(root.dataset.prerendered)); return; }
+    if (root.dataset.prerendered) { wirePdp(root, { handle, ...JSON.parse(root.dataset.prerendered) }); return; }
     $('[data-pdp-title]').textContent = 'We could not load this piece';
     $('[data-pdp-desc]').textContent = 'Please refresh the page. If it keeps happening, email us and we will help you order it.';
     return;
@@ -146,6 +235,7 @@ function wirePdp(root, p) {
   const selected = Object.fromEntries((variants.find(v => v.availableForSale) || variants[0]).selectedOptions.map(o => [o.name, o.value]));
   const box = $('[data-pdp-variants]');
   const btn = $('[data-add]');
+  const saveBtn = $('[data-save]');
   const priceEl = $('[data-pdp-price]');
 
   const current = () => variants.find(v => v.selectedOptions.every(o => selected[o.name] === o.value));
@@ -159,7 +249,7 @@ function wirePdp(root, p) {
   }
 
   if (box) {
-    box.innerHTML = realOptions.map(o => `<div><p class="label" style="color:var(--muted-foreground)">${esc(o.name)}</p>
+    box.innerHTML = realOptions.map(o => `<div><p class="label muted">${esc(o.name)}</p>
       <div class="opts">${o.optionValues.map(v => `<button type="button" class="opt" data-opt="${esc(o.name)}" data-val="${esc(v.name)}">${esc(v.name)}</button>`).join('')}</div></div>`).join('');
     box.hidden = !realOptions.length;
     box.querySelectorAll('[data-opt]').forEach(b => b.addEventListener('click', () => { selected[b.dataset.opt] = b.dataset.val; paint(); }));
@@ -173,14 +263,26 @@ function wirePdp(root, p) {
     catch (e) { $('[data-notice]').textContent = 'That did not go through. Please try again.'; console.error(e); }
     paint();
   };
+
+  if (saveBtn) {
+    saveBtn.dataset.save = p.handle;
+    saveBtn.onclick = () => {
+      const on = saved.toggle(p.handle);
+      $('[data-notice]').innerHTML = on ? 'Saved. <a href="/saved">See your saved pieces</a>' : 'Removed from your saved pieces.';
+    };
+  }
   paint();
+  saved.paint();
 }
 
 /* ---------- cart ---------- */
 const CART_FIELDS = `
   id checkoutUrl totalQuantity
+  discountCodes { code applicable }
+  discountAllocations { discountedAmount { amount currencyCode } }
   cost { subtotalAmount { amount currencyCode } }
   lines(first: 100) { nodes { id quantity
+    discountAllocations { discountedAmount { amount currencyCode } }
     cost { totalAmount { amount currencyCode } }
     merchandise { ... on ProductVariant { id title image { url altText }
       product { title handle featuredImage { url altText } } } } } }
@@ -219,10 +321,17 @@ const cart = {
       : (await gql(`mutation($id: ID!, $ids: [ID!]!) { cartLinesRemove(cartId: $id, lineIds: $ids) { cart { ${CART_FIELDS} } } }`, { id, ids: [lineId] })).cartLinesRemove;
     this.render(d.cart);
   },
+  async setCodes(codes) {
+    const id = store.get(CART_KEY);
+    const d = await gql(`mutation($id: ID!, $codes: [String!]!) { cartDiscountCodesUpdate(cartId: $id, discountCodes: $codes) { cart { ${CART_FIELDS} } userErrors { message } } }`, { id, codes });
+    if (d.cartDiscountCodesUpdate.userErrors.length) throw new Error(d.cartDiscountCodesUpdate.userErrors[0].message);
+    this.render(d.cartDiscountCodesUpdate.cart);
+    return d.cartDiscountCodesUpdate.cart;
+  },
   render(c) {
     this.data = c;
     const n = c?.totalQuantity || 0;
-    document.querySelectorAll('[data-cart-count]').forEach(el => { el.textContent = n; el.hidden = !n; });
+    $$('[data-cart-count]').forEach(el => { el.textContent = n; el.hidden = !n; });
     const bag = $('[data-cart-btn]');
     if (bag) bag.setAttribute('aria-label', n ? `Open bag, ${n} ${n === 1 ? 'piece' : 'pieces'}` : 'Open bag');
     const lines = c?.lines.nodes || [];
@@ -240,6 +349,7 @@ const cart = {
             <div><h4>${esc(m.product.title)}</h4><p class="variant">${m.title === 'Default Title' ? '' : esc(m.title)}</p></div>
             <button class="remove" type="button" data-line="${esc(l.id)}" data-q="0" aria-label="Remove ${esc(m.product.title)}">${ICON.x}</button>
           </div>
+          <button type="button" class="line-save" data-save-line="${esc(l.id)}" data-handle="${esc(m.product.handle)}">Save for later</button>
           <div class="bottom">
             <div class="qty">
               <button type="button" data-line="${esc(l.id)}" data-q="${l.quantity - 1}" aria-label="One less">${ICON.minus}</button>
@@ -251,14 +361,18 @@ const cart = {
         </div>
       </li>`;
     }).join('');
-    if (c) $('[data-subtotal]').textContent = money(c.cost.subtotalAmount);
-  },
-};
+    if (!c) return;
 
-const ICON = {
-  x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>',
-  minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>',
-  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>',
+    $('[data-subtotal]').textContent = money(c.cost.subtotalAmount);
+    const allocations = [...c.discountAllocations, ...lines.flatMap(l => l.discountAllocations)];
+    const off = allocations.reduce((s, a) => s + Number(a.discountedAmount.amount), 0);
+    $('[data-discount-row]').hidden = !(off > 0);
+    if (off > 0) $('[data-discount-amount]').textContent = `−${money({ amount: off, currencyCode: c.cost.subtotalAmount.currencyCode })}`;
+    $('[data-codes]').innerHTML = c.discountCodes.map(d => `<li class="code${d.applicable ? '' : ' bad'}">
+        <span>${esc(d.code)} ${d.applicable ? 'applied' : 'does not apply to this bag'}</span>
+        <button type="button" data-drop-code="${esc(d.code)}" aria-label="Remove code ${esc(d.code)}">${ICON.x}</button>
+      </li>`).join('');
+  },
 };
 
 /* ---------- drawer ---------- */
@@ -286,12 +400,44 @@ function wireChrome() {
   $('[data-backdrop]')?.addEventListener('click', closeDrawer);
   $('[data-drawer] .close')?.addEventListener('click', closeDrawer);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('[data-drawer]').classList.contains('open')) closeDrawer(); });
+
   $('[data-drawer-lines]')?.addEventListener('click', async e => {
+    const keep = e.target.closest('[data-save-line]');
+    if (keep) {
+      keep.disabled = true;
+      saved.add(keep.dataset.handle);
+      try { await cart.update(keep.dataset.saveLine, 0); announce('Moved to saved pieces'); } catch (err) { console.error(err); keep.disabled = false; }
+      return;
+    }
     const b = e.target.closest('[data-line]');
     if (!b) return;
     b.disabled = true;
     try { await cart.update(b.dataset.line, +b.dataset.q); } catch (err) { console.error(err); b.disabled = false; }
   });
+
+  const form = $('[data-discount-form]');
+  form?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const input = $('#discount-code');
+    const code = input.value.trim();
+    const msg = $('[data-discount-msg]');
+    if (!code) { msg.textContent = 'Enter a code first.'; return; }
+    const btn = form.querySelector('button');
+    btn.disabled = true; msg.textContent = '';
+    try {
+      const existing = (cart.data?.discountCodes || []).map(d => d.code);
+      await cart.setCodes([...new Set([...existing, code])]);
+      input.value = '';
+    } catch (err) { msg.textContent = 'We could not check that code. Please try again.'; console.error(err); }
+    btn.disabled = false;
+  });
+  $('[data-codes]')?.addEventListener('click', async e => {
+    const b = e.target.closest('[data-drop-code]');
+    if (!b) return;
+    b.disabled = true;
+    try { await cart.setCodes((cart.data?.discountCodes || []).map(d => d.code).filter(c => c !== b.dataset.dropCode)); } catch (err) { console.error(err); b.disabled = false; }
+  });
+
   $('[data-checkout]')?.addEventListener('click', () => { if (cart.data?.checkoutUrl) location.href = cart.data.checkoutUrl; });
 
   const menuBtn = $('[data-menu-btn]'), mobile = $('[data-mobile-nav]');
@@ -301,12 +447,14 @@ function wireChrome() {
   });
 
   const here = location.pathname.replace(/\/$/, '') || '/';
-  document.querySelectorAll('.nav a, .mobile-nav a').forEach(a => {
+  $$('.nav a, .mobile-nav a').forEach(a => {
     if (a.getAttribute('href') === here) a.setAttribute('aria-current', 'page');
   });
 }
 
 wireChrome();
+saved.paint();
 cart.load();
 hydrateGrids();
 renderProductPage();
+renderSavedPage();

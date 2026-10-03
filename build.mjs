@@ -13,14 +13,12 @@ const SRC = 'src';
 const OUT = 'dist';
 const API = `https://${config.shopify.domain}/api/${config.shopify.apiVersion}/graphql.json`;
 
-const esc = (s = '') => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const money = m => `${m.currencyCode} ${Number(m.amount).toFixed(2)}`;
-const img = (url, w) => (url ? `${url}${url.includes('?') ? '&' : '?'}width=${w}` : '');
+import { esc, money, img, cardHTML, tilesHTML, EMPTY_GRID } from './src/assets/render.js';
 const get = (obj, path) => path.split('.').reduce((o, k) => o?.[k], obj);
 
 /* ---------- data ---------- */
 const PRODUCT_FIELDS = `
-  id handle title description descriptionHtml availableForSale vendor updatedAt
+  id handle title description descriptionHtml availableForSale vendor updatedAt createdAt tags
   seo { title description }
   featuredImage { url altText width height }
   images(first: 10) { nodes { url altText width height } }
@@ -49,34 +47,14 @@ async function loadProducts() {
   }
 }
 
-/* ---------- partial renderers (kept in step with assets/site.js) ---------- */
-function card(p) {
-  const image = p.featuredImage || p.images?.nodes?.[0];
-  const sold = !p.availableForSale;
-  return `<a href="/product/${esc(p.handle)}" class="card">
-    <div class="frame">
-      ${image ? `<img src="${esc(img(image.url, 900))}" alt="${esc(image.altText || p.title)}" loading="lazy" width="900" height="1125">` : ''}
-      <span class="view">View piece</span>
-    </div>
-    <div class="row"><h3>${esc(p.title)}</h3><p class="price${sold ? ' sold-out' : ''}">${sold ? 'Sold out' : money(p.priceRange.minVariantPrice)}</p></div>
-    <p class="maker">Navratna by Navya</p>
-  </a>`;
-}
-
+/* ---------- partial renderers (shared with the browser via src/assets/render.js) ---------- */
 function picks(products) {
   const byHandle = Object.fromEntries(products.map(p => [p.handle, p]));
   const chosen = config.shopify.bestsellers.map(h => byHandle[h]).filter(Boolean);
   return (chosen.length ? chosen : products).slice(0, 3);
 }
 
-function tiles(list, w) {
-  return list.map(p => {
-    const i = p.featuredImage || p.images.nodes[0];
-    return `<a class="tile" href="/product/${esc(p.handle)}" aria-label="${esc(p.title)}">${i ? `<img src="${esc(img(i.url, w))}" alt="${esc(i.altText || p.title)}" loading="lazy">` : ''}</a>`;
-  }).join('');
-}
-
-function head({ title, description, path, ogTitle, ogDescription, image, jsonld }) {
+function head({ title, description, path, ogTitle, ogDescription, image, jsonld, robots }) {
   const url = config.siteUrl + (path === '/' ? '' : path);
   const share = image || config.assets.shareImage;
   return `<meta charset="utf-8">
@@ -84,6 +62,7 @@ function head({ title, description, path, ogTitle, ogDescription, image, jsonld 
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <meta name="author" content="Navratna">
+${robots ? `<meta name="robots" content="${esc(robots)}">` : ''}
 <link rel="canonical" href="${esc(url)}">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="${esc(config.brand)}">
@@ -131,6 +110,17 @@ async function write(path, html) {
 
 /* ---------- build ---------- */
 const products = await loadProducts();
+
+async function loadPrivacy() {
+  if (!config.policies?.privacyFromShopify) return null;
+  try {
+    const res = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: '{ shop { privacyPolicy { body } } }' }), signal: AbortSignal.timeout(15000) });
+    const body = (await res.json()).data?.shop?.privacyPolicy?.body;
+    return body ? `<div class="prose policy">${body}</div>` : null;
+  } catch { return null; }
+}
+const shopPrivacy = await loadPrivacy();
 const best = picks(products);
 
 const partials = {};
@@ -139,11 +129,13 @@ for (const f of await readdir(join(SRC, 'layout'))) partials[f.replace('.html', 
 const ctx = {
   ...config,
   year: String(new Date().getFullYear()),
-  grid: products.map(card).join('') || '<p class="lede">New pieces are on the way. Check back soon.</p>',
-  bestsellers: tiles(best, 900),
-  featurePair: tiles(best.slice(0, 2), 1400),
+  grid: products.map(p => cardHTML(p)).join('') || EMPTY_GRID,
+  count: `${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`,
+  bestsellers: tilesHTML(best, 900),
+  featurePair: tilesHTML(best.slice(0, 2), 1400),
 };
 for (const [k, v] of Object.entries(partials)) ctx[k] = () => render(v, ctx);
+ctx.privacy = shopPrivacy || ctx['privacy-default'];
 
 await rm(OUT, { recursive: true, force: true });
 await cp(join(SRC, 'assets'), join(OUT, 'assets'), { recursive: true });
