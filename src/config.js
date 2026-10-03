@@ -30,6 +30,12 @@ export const config = {
   // are correct: the privacy page will then show Shopify's own policy, refreshed on every build.
   policies: { privacyFromShopify: false },
 
+  // Mirrors Shopify's Domestic shipping rule (Settings → Shipping and delivery). Update both together.
+  shipping: { freeOverUSD: 70 },
+
+  // Number of pieces shown in the home page collection before the "View all" link.
+  homeLimit: 8,
+
   contact: {
     email: 'hello@navratnanavya.com',
     instagram: 'navratnanavya',

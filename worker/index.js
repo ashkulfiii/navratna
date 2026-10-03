@@ -9,6 +9,8 @@ const REDIRECTS = [
   [/^\/pages\/contact\/?$/, () => '/contact'],
   [/^\/policies\/privacy-policy\/?$/, () => '/privacy-policy'],
   [/^\/policies\/terms-of-service\/?$/, () => '/terms-conditions'],
+  [/^\/cart\/?$/, () => '/'],
+  [/^\/(account|search)(\/.*)?$/, () => '/shop'],
 ];
 
 export default {

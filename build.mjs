@@ -84,7 +84,7 @@ ${robots ? `<meta name="robots" content="${esc(robots)}">` : ''}
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
 ${jsonld ? `<script type="application/ld+json">${JSON.stringify(jsonld).replace(/</g, '\\u003c')}</script>` : ''}
-<script>window.NAVRATNA=${JSON.stringify({ shopify: config.shopify }).replace(/</g, '\\u003c')};</script>`;
+<script>window.NAVRATNA=${JSON.stringify({ shopify: config.shopify, shipping: config.shipping, homeLimit: config.homeLimit }).replace(/</g, '\\u003c')};</script>`;
 }
 
 /* ---------- templating ---------- */
@@ -130,6 +130,8 @@ const ctx = {
   ...config,
   year: String(new Date().getFullYear()),
   grid: products.map(p => cardHTML(p)).join('') || EMPTY_GRID,
+  homeGrid: products.slice(0, config.homeLimit).map(p => cardHTML(p)).join('') || EMPTY_GRID,
+  viewAllHidden: products.length > config.homeLimit ? '' : 'hidden',
   count: `${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`,
   bestsellers: tilesHTML(best, 900),
   featurePair: tilesHTML(best.slice(0, 2), 1400),

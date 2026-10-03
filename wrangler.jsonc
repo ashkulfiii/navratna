@@ -10,7 +10,7 @@
     "binding": "ASSETS",
     "html_handling": "drop-trailing-slash",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/product/*", "/products/*", "/collections/*", "/pages/*", "/policies/*"]
+    "run_worker_first": ["/product/*", "/products/*", "/collections/*", "/pages/*", "/policies/*", "/cart", "/account", "/account/*", "/search"]
   },
   "observability": { "enabled": true }
 }

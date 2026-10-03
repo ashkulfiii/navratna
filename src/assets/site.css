@@ -422,3 +422,9 @@ body.no-scroll { overflow: hidden; }
 /* Saved page */
 .saved-empty { margin-top: 3rem; display: grid; justify-items: start; gap: 1.5rem; color: var(--muted-foreground); }
 .saved-empty[hidden] { display: none; }
+
+/* Free shipping note, home "View all", footer contact */
+.drawer .ship-note { font-size: .8125rem; color: var(--foreground); }
+.view-all { margin-top: 3rem; display: flex; justify-content: center; }
+.site-footer .tag { display: grid; gap: .35rem; }
+.site-footer .tag a:hover { color: var(--foreground); }

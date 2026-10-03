@@ -39,7 +39,8 @@
   <section class="section container" aria-labelledby="collection-title">
     <h2 id="collection-title" class="section-title">Collection</h2>
     {{toolbar}}
-    <div class="product-grid" data-grid="home" data-view="gallery">{{grid}}</div>
+    <div class="product-grid" data-grid="home" data-view="gallery">{{homeGrid}}</div>
+    <p class="view-all" data-view-all {{viewAllHidden}}><a class="btn btn-outline" href="/shop">View all pieces</a></p>
   </section>
 
   <section class="feature-pair" data-feature-pair aria-label="Featured pieces">{{featurePair}}</section>

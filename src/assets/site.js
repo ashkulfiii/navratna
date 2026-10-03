@@ -123,9 +123,13 @@ function wireToolbar(products) {
 
   const paint = () => {
     const color = colorEl.value;
-    const list = SORTS[sortEl.value](products).filter(p => !color || colorsOf(p).includes(color));
+    const all = SORTS[sortEl.value](products).filter(p => !color || colorsOf(p).includes(color));
+    const limit = grid.dataset.grid === 'home' ? CFG.homeLimit : Infinity;
+    const list = all.slice(0, limit);
+    const viewAll = $('[data-view-all]');
+    if (viewAll) viewAll.hidden = all.length <= limit;
     grid.innerHTML = list.length ? list.map(p => cardHTML(p, { saved: saved.has(p.handle) })).join('') : (products.length ? '<p class="lede">No pieces in this color yet.</p>' : EMPTY_GRID);
-    countEl.textContent = `${list.length} ${list.length === 1 ? 'piece' : 'pieces'}`;
+    countEl.textContent = all.length > list.length ? `Showing ${list.length} of ${all.length} pieces` : `${all.length} ${all.length === 1 ? 'piece' : 'pieces'}`;
   };
   sortEl.onchange = paint;
   colorEl.onchange = paint;
@@ -368,6 +372,12 @@ const cart = {
     const off = allocations.reduce((s, a) => s + Number(a.discountedAmount.amount), 0);
     $('[data-discount-row]').hidden = !(off > 0);
     if (off > 0) $('[data-discount-amount]').textContent = `−${money({ amount: off, currencyCode: c.cost.subtotalAmount.currencyCode })}`;
+    const free = CFG.shipping?.freeOverUSD;
+    const net = Number(c.cost.subtotalAmount.amount) - off;
+    const note = $('[data-ship-note]');
+    if (note && free) note.textContent = net >= free
+      ? 'Your order ships free within the US.'
+      : `Add ${money({ amount: free - net, currencyCode: c.cost.subtotalAmount.currencyCode })} more for free US shipping.`;
     $('[data-codes]').innerHTML = c.discountCodes.map(d => `<li class="code${d.applicable ? '' : ' bad'}">
         <span>${esc(d.code)} ${d.applicable ? 'applied' : 'does not apply to this bag'}</span>
         <button type="button" data-drop-code="${esc(d.code)}" aria-label="Remove code ${esc(d.code)}">${ICON.x}</button>
