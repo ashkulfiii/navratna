@@ -538,18 +538,18 @@ body.no-scroll { overflow: hidden; }
 }
 @keyframes hero-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
-/* Home first section: dark plum and violet gradient in visible motion.
-   The lightest point stays near 50% lightness so ivory text keeps strong contrast. */
+/* Home first section: deep mauve-pink gradient in visible motion (no violet, per Navya).
+   Kept on the deeper side of mauve so the blush NAVRATNA lettering and ivory text stay readable. */
 .hero.hero-mauve {
   background: linear-gradient(120deg,
-    oklch(30% .07 320) 0%, oklch(40% .1 345) 25%, oklch(34% .09 300) 50%,
-    oklch(44% .11 355) 75%, oklch(31% .08 325) 100%);
+    oklch(36% .06 355) 0%, oklch(46% .08 2) 25%, oklch(39% .065 350) 50%,
+    oklch(50% .085 6) 75%, oklch(37% .06 356) 100%);
   background-size: 300% 300%;
 }
-.hero-glow { filter: blur(60px); mix-blend-mode: screen; opacity: .65; }
-.hero-glow-1 { width: 50vw; height: 50vw; left: -10vw; top: -15vw; background: radial-gradient(circle, oklch(50% .15 355), transparent 68%); }
-.hero-glow-2 { width: 45vw; height: 45vw; right: -8vw; bottom: -15vw; background: radial-gradient(circle, oklch(52% .16 300), transparent 68%); }
-.hero-glow-3 { position: absolute; border-radius: 50%; width: 30vw; height: 30vw; left: 35%; top: 20%; filter: blur(70px); mix-blend-mode: screen; opacity: .35; background: radial-gradient(circle, oklch(72% .11 80), transparent 70%); }
+.hero-glow { filter: blur(60px); mix-blend-mode: screen; opacity: .6; }
+.hero-glow-1 { width: 50vw; height: 50vw; left: -10vw; top: -15vw; background: radial-gradient(circle, oklch(52% .1 8), transparent 68%); }
+.hero-glow-2 { width: 45vw; height: 45vw; right: -8vw; bottom: -15vw; background: radial-gradient(circle, oklch(46% .09 352), transparent 68%); }
+.hero-glow-3 { position: absolute; border-radius: 50%; width: 30vw; height: 30vw; left: 35%; top: 20%; filter: blur(70px); mix-blend-mode: screen; opacity: .3; background: radial-gradient(circle, oklch(72% .1 75), transparent 70%); }
 @media (prefers-reduced-motion: no-preference) {
   .hero.hero-mauve { animation: mauve-shift 9s ease-in-out infinite alternate; }
   .hero-glow-1 { animation: glow-drift-1 11s ease-in-out infinite alternate; }
