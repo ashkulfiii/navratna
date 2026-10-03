@@ -17,5 +17,9 @@ Custom storefront for navratnanavya.com. Shopify holds products, inventory, orde
 - Keep the two card renderers in `build.mjs` and `site.js` in step, so live data swaps in without a layout jump.
 - Run `node build.mjs` after every change and check it finishes without errors before pushing.
 
-## Deploy
-Vercel builds from `main` using `vercel.json` (build `node build.mjs`, output `dist`). Every push to `main` goes live.
+## Deploy (Cloudflare Workers, account ash@kulfiii.com)
+- `wrangler.jsonc` defines the Worker `navratna`. Its `build.command` runs `node build.mjs`, so `npx wrangler deploy` builds and deploys in one step.
+- Static files in `dist/` are served directly. `worker/index.js` runs only for `/product/*` (fallback page for products added after the last deploy) and old Shopify URLs (`/products/*`, `/collections/*`, `/pages/*`, `/policies/*`), which it 301-redirects.
+- URLs have no trailing slash (`html_handling: drop-trailing-slash`). Unknown URLs get `404.html`.
+- Workers Builds is connected to GitHub `ashkulfiii/navratna`: every push to `main` runs `npx wrangler deploy`. Pushes to other branches create preview URLs.
+- Local check: `npx wrangler dev`, then open http://localhost:8787.

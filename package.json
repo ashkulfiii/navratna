@@ -4,7 +4,13 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "dev": "node build.mjs && npx --yes serve dist -l 4321"
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "wrangler": "^4.147.0"
+  }
 }
