@@ -83,7 +83,19 @@ const saved = {
   },
 };
 
-document.addEventListener('click', e => {
+document.addEventListener('click', async e => {
+  const mv = e.target.closest('[data-move]');
+  if (mv) {
+    mv.disabled = true; mv.textContent = 'Adding…';
+    try {
+      await cart.add(mv.dataset.move, 1);
+      saved.remove(mv.dataset.handle);
+      mv.closest('.card')?.remove();
+      renderSavedEmpty();
+      openDrawer();
+    } catch (err) { console.error(err); mv.disabled = false; mv.textContent = 'Try again'; }
+    return;
+  }
   const b = e.target.closest('[data-heart]');
   if (!b) return;
   e.preventDefault();
@@ -181,7 +193,13 @@ async function renderSavedPage() {
   if (!handles.length) { renderSavedEmpty(); return; }
   try {
     const products = await fetchByHandles(handles);
-    g.innerHTML = products.map(p => cardHTML(p, { saved: true })).join('');
+    const action = p => {
+      const buyable = p.variants.nodes.filter(v => v.availableForSale);
+      if (!buyable.length) return '<button type="button" class="btn btn-block card-action" disabled>Sold out</button>';
+      if (p.variants.nodes.length > 1) return `<a class="btn btn-outline btn-block card-action" href="/product/${esc(p.handle)}">Choose options</a>`;
+      return `<button type="button" class="btn btn-block card-action" data-move="${esc(buyable[0].id)}" data-handle="${esc(p.handle)}">Move to bag</button>`;
+    };
+    g.innerHTML = products.map(p => cardHTML(p, { saved: true, action: action(p) })).join('');
     g.hidden = false;
     $('[data-saved-empty]').hidden = true;
     // Drop pieces that no longer exist in the store.

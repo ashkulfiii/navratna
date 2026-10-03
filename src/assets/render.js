@@ -19,7 +19,7 @@ export const ICON = {
 export const colorsOf = p =>
   (p.tags || []).map(t => t.match(/^colou?r\s*:\s*(.+)$/i)?.[1]?.trim()).filter(Boolean);
 
-export function cardHTML(p, { saved = false, width = 900 } = {}) {
+export function cardHTML(p, { saved = false, width = 900, action = '' } = {}) {
   const image = p.featuredImage || p.images?.nodes?.[0];
   const sold = !p.availableForSale;
   const href = `/product/${esc(p.handle)}`;
@@ -35,6 +35,7 @@ export function cardHTML(p, { saved = false, width = 900 } = {}) {
       <div class="row"><h3>${esc(p.title)}</h3><p class="price${sold ? ' sold-out' : ''}">${sold ? 'Sold out' : money(p.priceRange.minVariantPrice)}</p></div>
       <p class="maker">Navratna by Navya</p>
     </a>
+    ${action}
   </article>`;
 }
 
