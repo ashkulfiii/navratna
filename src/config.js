@@ -21,6 +21,9 @@ export const config = {
     logoHeader: 'https://cdn.shopify.com/s/files/1/0777/4509/4855/files/navratna-logo-header.png?v=1790991164',
     logoHero: 'https://cdn.shopify.com/s/files/1/0777/4509/4855/files/navratna-logo-full-hero.png?v=1790991164',
     logoFooter: 'https://cdn.shopify.com/s/files/1/0777/4509/4855/files/navratna-logo-cropped.png?v=1790991164',
+    // Home page first section: two arch-framed product photos.
+    heroMain: 'https://cdn.shopify.com/s/files/1/0777/4509/4855/files/blush-bouquet-drops.jpg?v=1791040386',
+    heroSmall: 'https://cdn.shopify.com/s/files/1/0777/4509/4855/files/terracotta-rose-pendant.jpg?v=1791040390',
     navya1: 'https://cdn.shopify.com/s/files/1/0777/4509/4855/files/navya-1.jpg?v=1790991164',
     navya2: 'https://cdn.shopify.com/s/files/1/0777/4509/4855/files/navya-2.jpg?v=1790991164',
     navya3: 'https://cdn.shopify.com/s/files/1/0777/4509/4855/files/navya-3.jpg?v=1790991164',

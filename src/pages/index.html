@@ -9,20 +9,26 @@
 -->
 {{header}}
 <main id="main">
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="silk-bg" aria-hidden="true">
-      <span class="silk-blob silk-blob-1"></span>
-      <span class="silk-blob silk-blob-2"></span>
-      <span class="silk-blob silk-blob-3"></span>
-      <span class="silk-blob silk-blob-4"></span>
+  <section class="hero hero-mauve" aria-labelledby="hero-title">
+    <div class="hero-bg" aria-hidden="true">
+      <span class="hero-glow hero-glow-1"></span>
+      <span class="hero-glow hero-glow-2"></span>
       <span class="silk-grain"></span>
-      <span class="silk-fade"></span>
     </div>
-    <div class="hero-content">
-      <h1 id="hero-title" class="sr-only">Navratna by Navya</h1>
-      <img class="hero-logo" src="{{assets.logoHero}}" alt="Navratna by Navya" width="1341" height="440" fetchpriority="high">
-      <p class="hero-note">50% of all proceeds are donated to the Atlanta Community Food Bank</p>
-      <a class="btn" href="/shop">Shop now</a>
+    <div class="hero-inner container">
+      <div class="hero-copy">
+        <h1 id="hero-title" class="sr-only">Navratna by Navya</h1>
+        <img class="hero-logo" src="{{assets.logoHero}}" alt="Navratna, handmade by Navya" width="1341" height="440" fetchpriority="high">
+        <p class="hero-note">Polymer clay earrings and pendants, designed and made by hand in Atlanta. 50% of all proceeds go to the Atlanta Community Food Bank.</p>
+        <div class="hero-actions">
+          <a class="btn btn-ivory" href="/shop">Shop the collection</a>
+          <a class="btn btn-ghost" href="/about">Meet Navya</a>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="arch arch-main"><img src="{{assets.heroMain}}&width=900" alt="" width="900" height="1125" fetchpriority="high"></div>
+        <div class="arch arch-small"><img src="{{assets.heroSmall}}&width=600" alt="" width="600" height="750"></div>
+      </div>
     </div>
   </section>
 
