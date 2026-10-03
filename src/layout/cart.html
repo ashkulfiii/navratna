@@ -1,0 +1,22 @@
+<div class="drawer-backdrop" data-backdrop hidden></div>
+<aside class="drawer" id="cart-drawer" data-drawer role="dialog" aria-modal="true" aria-labelledby="cart-title" hidden>
+  <button type="button" class="close" aria-label="Close bag">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+  </button>
+  <div>
+    <h2 id="cart-title">Your Bag</h2>
+    <p class="count" data-drawer-count>0 pieces</p>
+  </div>
+  <div class="empty" data-drawer-empty>
+    <p>Your bag is empty.</p>
+    <a class="btn" href="/shop">Shop the collection</a>
+  </div>
+  <ul class="lines" data-drawer-lines hidden></ul>
+  <div class="foot" data-drawer-foot hidden>
+    <div class="subtotal"><span>Subtotal</span><span data-subtotal></span></div>
+    <p class="fine">Taxes &amp; shipping calculated at checkout.</p>
+    <button type="button" class="btn checkout" data-checkout>Secure Checkout
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </div>
+</aside>

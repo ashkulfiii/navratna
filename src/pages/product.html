@@ -1,0 +1,32 @@
+<!-- page
+{
+  "template": "product",
+  "description": "Handcrafted jewellery from the Navratna atelier."
+}
+-->
+{{header}}
+<main id="main" class="container" style="padding-block:3rem">
+  <a href="/shop" class="back">← Collection</a>
+  <div class="pdp" data-pdp data-prerendered="{{pdp.prerendered}}">
+    <div>
+      <div class="main-img" data-pdp-image>{{pdp.image}}</div>
+      <div class="thumbs" data-pdp-thumbs></div>
+    </div>
+    <div class="info">
+      <p class="eyebrow">Navratna by Navya</p>
+      <h1 data-pdp-title>{{pdp.title}}</h1>
+      <p class="pdp-price" data-pdp-price>{{pdp.price}}</p>
+      <div class="rule" aria-hidden="true"></div>
+      <div class="desc" data-pdp-desc>{{pdp.desc}}</div>
+      <div class="variants" data-pdp-variants hidden></div>
+      <button type="button" class="btn btn-block" data-add disabled>Add to bag</button>
+      <p class="notice" data-notice role="status"></p>
+      <ul class="assurances">
+        <li>· Handcrafted in small batches</li>
+        <li>· Ethically sourced materials</li>
+        <li>· Secure checkout via Shopify</li>
+      </ul>
+    </div>
+  </div>
+</main>
+{{footer}}

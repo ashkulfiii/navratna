@@ -1,0 +1,51 @@
+<!-- page
+{
+  "out": "index.html",
+  "path": "/",
+  "title": "Navratna | Handmade by Navya",
+  "description": "Handmade jewellery by Navya. Each piece is a narrative woven from seasonal inspiration.",
+  "ogDescription": "Handmade jewellery by Navya."
+}
+-->
+{{header}}
+<main id="main">
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="silk-bg" aria-hidden="true">
+      <span class="silk-blob silk-blob-1"></span>
+      <span class="silk-blob silk-blob-2"></span>
+      <span class="silk-blob silk-blob-3"></span>
+      <span class="silk-blob silk-blob-4"></span>
+      <span class="silk-grain"></span>
+      <span class="silk-fade"></span>
+    </div>
+    <div class="hero-content">
+      <h1 id="hero-title" class="sr-only">Navratna by Navya</h1>
+      <img class="hero-logo" src="{{assets.logoHero}}" alt="Navratna by Navya" width="1341" height="440" fetchpriority="high">
+      <p class="hero-note">50% of all proceeds are donated to the Atlanta Community Food Bank</p>
+      <a class="btn" href="/shop">Shop now</a>
+    </div>
+  </section>
+
+  <section class="section container" aria-labelledby="collection-title">
+    <h2 id="collection-title" class="section-title">Collection</h2>
+    <div class="product-grid" data-grid="home">{{grid}}</div>
+  </section>
+
+  <section class="feature-pair" data-feature-pair aria-label="Featured pieces">{{featurePair}}</section>
+
+  <section class="section section-gap container" aria-labelledby="best-title">
+    <h2 id="best-title" class="section-title">Bestseller</h2>
+    <p class="lede">Navratna by Navya embodies a tradition of artisanal craftsmanship, where each piece of jewelry is a narrative woven from seasonal inspiration. The brand thrives on creating lightweight, small-batch adornments that elevate personal stories into wearable art.</p>
+  </section>
+
+  <section class="strip container" aria-label="Bestsellers">
+    <div class="grid" data-bestsellers>{{bestsellers}}</div>
+  </section>
+
+  <section class="closing section-gap">
+    <p class="script">Navratna</p>
+    <p>Each creation is a symphony of exquisite materials, reflecting the beauty of nature and life's fleeting inspirations.</p>
+    <a class="btn" href="/shop">Shop now</a>
+  </section>
+</main>
+{{footer}}
