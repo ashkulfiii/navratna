@@ -8,6 +8,7 @@ const CFG = window.NAVRATNA;
 const API = `https://${CFG.shopify.domain}/api/${CFG.shopify.apiVersion}/graphql.json`;
 const CART_KEY = 'navratna_cart_id';
 const SAVED_KEY = 'navratna_saved';
+const RENAMED = { 'jewelry-example-product-1': 'terracotta-rose-pendant', 'pendant-copy': 'noir-tulip-drops', 'spring-drop-earring': 'blush-bouquet-drops', 'pendant-copy-1': 'honeybee-garden-drops' };
 const VIEW_KEY = 'navratna_view';
 
 /* ---------- helpers ---------- */
@@ -62,7 +63,7 @@ async function fetchByHandles(handles) {
 
 /* ---------- saved for later (stored in this browser) ---------- */
 const saved = {
-  list() { try { return JSON.parse(store.get(SAVED_KEY) || '[]'); } catch { return []; } },
+  list() { try { return [...new Set(JSON.parse(store.get(SAVED_KEY) || '[]').map(h => RENAMED[h] || h))]; } catch { return []; } },
   has(h) { return this.list().includes(h); },
   write(list) { store.set(SAVED_KEY, JSON.stringify(list)); this.paint(); },
   add(h) { if (!this.has(h)) this.write([h, ...this.list()]); },
