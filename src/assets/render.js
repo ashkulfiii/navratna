@@ -19,14 +19,14 @@ export const ICON = {
 export const colorsOf = p =>
   (p.tags || []).map(t => t.match(/^colou?r\s*:\s*(.+)$/i)?.[1]?.trim()).filter(Boolean);
 
-export function cardHTML(p, { saved = false } = {}) {
+export function cardHTML(p, { saved = false, width = 900 } = {}) {
   const image = p.featuredImage || p.images?.nodes?.[0];
   const sold = !p.availableForSale;
   const href = `/product/${esc(p.handle)}`;
   return `<article class="card" data-handle="${esc(p.handle)}">
     <div class="frame">
       <a href="${href}" class="frame-link" tabindex="-1" aria-hidden="true">
-        ${image ? `<img src="${esc(img(image.url, 900))}" alt="" loading="lazy" width="900" height="1125">` : ''}
+        ${image ? `<img src="${esc(img(image.url, width))}" alt="" loading="lazy" width="900" height="1125">` : ''}
         <span class="view">View piece</span>
       </a>
       <button type="button" class="heart" data-heart="${esc(p.handle)}" aria-pressed="${saved}" aria-label="Save ${esc(p.title)} for later">${ICON.heart}</button>

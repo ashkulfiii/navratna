@@ -13,7 +13,7 @@ const SRC = 'src';
 const OUT = 'dist';
 const API = `https://${config.shopify.domain}/api/${config.shopify.apiVersion}/graphql.json`;
 
-import { esc, money, img, cardHTML, tilesHTML, EMPTY_GRID } from './src/assets/render.js';
+import { esc, money, img, cardHTML, EMPTY_GRID } from './src/assets/render.js';
 const get = (obj, path) => path.split('.').reduce((o, k) => o?.[k], obj);
 
 /* ---------- data ---------- */
@@ -133,8 +133,8 @@ const ctx = {
   homeGrid: products.slice(0, config.homeLimit).map(p => cardHTML(p)).join('') || EMPTY_GRID,
   viewAllHidden: products.length > config.homeLimit ? '' : 'hidden',
   count: `${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`,
-  bestsellers: tilesHTML(best, 900),
-  featurePair: tilesHTML(best.slice(0, 2), 1400),
+  bestsellers: best.map(p => cardHTML(p)).join(''),
+  featurePair: best.slice(0, 2).map(p => cardHTML(p, { width: 1400 })).join(''),
 };
 for (const [k, v] of Object.entries(partials)) ctx[k] = () => render(v, ctx);
 ctx.privacy = shopPrivacy || ctx['privacy-default'];

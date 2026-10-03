@@ -2,7 +2,7 @@
 // Talks to Shopify's Storefront API (tokenless) for live products and the cart.
 // Checkout is Shopify's own hosted checkout (cart.checkoutUrl).
 
-import { esc, money, img, ICON, colorsOf, cardHTML, tilesHTML, EMPTY_GRID } from './render.js';
+import { esc, money, img, ICON, colorsOf, cardHTML, EMPTY_GRID } from './render.js';
 
 const CFG = window.NAVRATNA;
 const API = `https://${CFG.shopify.domain}/api/${CFG.shopify.apiVersion}/graphql.json`;
@@ -160,8 +160,8 @@ async function hydrateGrids() {
   const byHandle = Object.fromEntries(products.map(p => [p.handle, p]));
   const picks = CFG.shopify.bestsellers.map(h => byHandle[h]).filter(Boolean);
   const list = (picks.length ? picks : products).slice(0, 3);
-  if (strip) strip.innerHTML = tilesHTML(list, 900);
-  if (pair) pair.innerHTML = tilesHTML(list.slice(0, 2), 1400);
+  if (strip) strip.innerHTML = list.map(p => cardHTML(p, { saved: saved.has(p.handle) })).join('');
+  if (pair) pair.innerHTML = list.slice(0, 2).map(p => cardHTML(p, { saved: saved.has(p.handle), width: 1400 })).join('');
   saved.paint();
 }
 
