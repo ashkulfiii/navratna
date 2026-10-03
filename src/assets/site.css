@@ -492,3 +492,7 @@ body.no-scroll { overflow: hidden; }
 .contact-label { font-size: 11px; text-transform: uppercase; letter-spacing: .25em; color: var(--muted-foreground); }
 .contact-value { font-family: var(--font-display); font-size: 1.25rem; overflow-wrap: anywhere; }
 @media (prefers-reduced-motion: reduce) { .contact-links a { transition: none; } .contact-links a:hover { transform: none; } }
+
+/* About page: less space above the headline */
+.narrow.narrow-tight { padding-top: 2.5rem; }
+@media (min-width: 768px) { .narrow.narrow-tight { padding-top: 3.5rem; } }
