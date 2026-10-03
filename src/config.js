@@ -13,6 +13,8 @@ export const config = {
     homeCollection: 'all',
     // Product handles shown in the home page "Bestseller" strip (first 3 used).
     bestsellers: ['jewelry-example-product-1', 'pendant-copy', 'spring-drop-earring'],
+    // Product handles for the tilted photo collage on the home page (6 shown).
+    homeCollage: ['blush-bouquet-drops', 'honeybee-garden-drops', 'terracotta-rose-pendant', 'noir-tulip-drops', 'mint-garden-drops', 'coral-tulip-drops'],
   },
 
   assets: {

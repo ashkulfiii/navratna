@@ -440,3 +440,37 @@ body.no-scroll { overflow: hidden; }
 /* Saved page: Move to bag under each piece */
 .card .card-action { margin-top: 1rem; height: 2.75rem; padding-inline: 1rem; font-size: 10px; letter-spacing: .25em; }
 .product-grid[data-view="compact"] .card-action { height: 2.25rem; letter-spacing: .15em; }
+
+/* Home: tilted photo collage */
+.collage-section { margin-top: 5rem; }
+.collage-head { display: grid; gap: .75rem; max-width: 36rem; }
+.collage-head p { line-height: 1.75; color: color-mix(in oklch, var(--foreground) 80%, transparent); }
+.polaroids { margin-top: 2.5rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 1rem; padding-inline: .25rem; }
+@media (min-width: 640px) { .polaroids { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem 1.5rem; } }
+.polaroid {
+  --r: -3deg;
+  position: relative; display: block; background: var(--card);
+  padding: .55rem .55rem 0; transform: rotate(var(--r));
+  box-shadow: 0 14px 28px -12px rgb(40 20 20 / .28), 0 2px 6px rgb(40 20 20 / .08);
+  outline: 1px solid color-mix(in oklch, var(--foreground) 8%, transparent);
+  transition: transform .45s ease, box-shadow .45s ease;
+}
+.polaroid img { width: 100%; aspect-ratio: 4/5; object-fit: cover; background: var(--secondary); }
+.polaroid .cap { display: block; padding: .6rem .25rem .75rem; text-align: center; font-family: var(--font-display); font-size: .95rem; line-height: 1.3; }
+.polaroid:nth-child(2) { --r: 3deg; }
+.polaroid:nth-child(3) { --r: -1.5deg; }
+.polaroid:nth-child(4) { --r: 4deg; }
+.polaroid:nth-child(5) { --r: -4deg; }
+.polaroid:nth-child(6) { --r: 2deg; }
+.polaroid:hover, .polaroid:focus-visible { transform: rotate(0) scale(1.03); z-index: 10; box-shadow: 0 22px 40px -14px rgb(40 20 20 / .35); }
+@media (min-width: 1000px) {
+  .polaroids { display: block; position: relative; aspect-ratio: 2.6 / 1; margin-top: 3rem; padding: 0; }
+  .polaroid { position: absolute; width: 20%; }
+  .polaroid:nth-child(1) { left: 0;   top: 6%; --r: -6deg; z-index: 1; }
+  .polaroid:nth-child(2) { left: 16%; top: 0;  --r: 4deg;  z-index: 3; }
+  .polaroid:nth-child(3) { left: 32%; top: 10%; --r: -2deg; z-index: 2; }
+  .polaroid:nth-child(4) { left: 48%; top: 1%; --r: 5deg;  z-index: 4; }
+  .polaroid:nth-child(5) { left: 64%; top: 8%; --r: -4deg; z-index: 2; }
+  .polaroid:nth-child(6) { left: 80%; top: 0;  --r: 3deg;  z-index: 3; }
+}
+@media (prefers-reduced-motion: reduce) { .polaroid { transition: none; } }

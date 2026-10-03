@@ -47,3 +47,15 @@ export function tilesHTML(list, w) {
 }
 
 export const EMPTY_GRID = '<p class="lede">New pieces are on the way. Check back soon.</p>';
+
+// Tilted photo collage for the home page. Missing handles are skipped.
+export function collageHTML(products, handles = []) {
+  const byHandle = Object.fromEntries(products.map(p => [p.handle, p]));
+  return handles.map(h => byHandle[h]).filter(Boolean).slice(0, 6).map(p => {
+    const i = p.featuredImage || p.images?.nodes?.[0];
+    return `<a class="polaroid" href="/product/${esc(p.handle)}">
+      ${i ? `<img src="${esc(img(i.url, 700))}" alt="${esc(i.altText || p.title)}" loading="lazy" width="700" height="875">` : ''}
+      <span class="cap">${esc(p.title)}</span>
+    </a>`;
+  }).join('');
+}

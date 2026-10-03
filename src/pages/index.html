@@ -36,6 +36,14 @@
     </div>
   </section>
 
+  <section class="collage-section container" aria-labelledby="collage-title">
+    <div class="collage-head">
+      <h2 id="collage-title" class="section-title">New pieces</h2>
+      <p>New designs just joined the collection, from honeybee teardrops to terracotta roses.</p>
+    </div>
+    <div class="polaroids" data-collage>{{collage}}</div>
+  </section>
+
   <section class="section container" aria-labelledby="collection-title">
     <h2 id="collection-title" class="section-title">Collection</h2>
     {{toolbar}}
@@ -43,7 +51,6 @@
     <p class="view-all" data-view-all {{viewAllHidden}}><a class="btn btn-outline" href="/shop">View all pieces</a></p>
   </section>
 
-  <section class="feature-pair" data-feature-pair aria-label="Featured pieces">{{featurePair}}</section>
 
   <section class="section section-gap container" aria-labelledby="best-title">
     <h2 id="best-title" class="section-title">Best sellers</h2>

@@ -2,7 +2,7 @@
 // Talks to Shopify's Storefront API (tokenless) for live products and the cart.
 // Checkout is Shopify's own hosted checkout (cart.checkoutUrl).
 
-import { esc, money, img, ICON, colorsOf, cardHTML, EMPTY_GRID } from './render.js';
+import { esc, money, img, ICON, colorsOf, cardHTML, collageHTML, EMPTY_GRID } from './render.js';
 
 const CFG = window.NAVRATNA;
 const API = `https://${CFG.shopify.domain}/api/${CFG.shopify.apiVersion}/graphql.json`;
@@ -127,6 +127,7 @@ function wireToolbar(products) {
   const colorEl = $('[data-color]', bar);
   const countEl = $('[data-count]', bar);
 
+  if (grid.dataset.grid === 'home') sortEl.value = 'newest';
   const colors = [...new Set(products.flatMap(colorsOf))].sort();
   if (colors.length) {
     colorEl.innerHTML = '<option value="">All colors</option>' + colors.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
@@ -153,7 +154,7 @@ async function hydrateGrids() {
   const grid = $('[data-grid]');
   const strip = $('[data-bestsellers]');
   const pair = $('[data-feature-pair]');
-  if (!grid && !strip && !pair) return;
+  if (!grid && !strip && !pair && !$('[data-collage]')) return;
   setView(store.get(VIEW_KEY) || 'gallery');
   let products;
   try {
@@ -169,6 +170,12 @@ async function hydrateGrids() {
     return;
   }
   if (grid) wireToolbar(products);
+  const collage = $('[data-collage]');
+  if (collage) {
+    const html = collageHTML(products, CFG.shopify.homeCollage);
+    if (html) collage.innerHTML = html;
+    collage.closest('section').hidden = !collage.querySelector('.polaroid');
+  }
   const byHandle = Object.fromEntries(products.map(p => [p.handle, p]));
   const picks = CFG.shopify.bestsellers.map(h => byHandle[h]).filter(Boolean);
   const list = (picks.length ? picks : products).slice(0, 3);

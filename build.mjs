@@ -13,7 +13,7 @@ const SRC = 'src';
 const OUT = 'dist';
 const API = `https://${config.shopify.domain}/api/${config.shopify.apiVersion}/graphql.json`;
 
-import { esc, money, img, cardHTML, EMPTY_GRID } from './src/assets/render.js';
+import { esc, money, img, cardHTML, collageHTML, EMPTY_GRID } from './src/assets/render.js';
 const get = (obj, path) => path.split('.').reduce((o, k) => o?.[k], obj);
 
 /* ---------- data ---------- */
@@ -130,7 +130,8 @@ const ctx = {
   ...config,
   year: String(new Date().getFullYear()),
   grid: products.map(p => cardHTML(p)).join('') || EMPTY_GRID,
-  homeGrid: products.slice(0, config.homeLimit).map(p => cardHTML(p)).join('') || EMPTY_GRID,
+  collage: collageHTML(products, config.shopify.homeCollage),
+  homeGrid: [...products].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || '')).slice(0, config.homeLimit).map(p => cardHTML(p)).join('') || EMPTY_GRID,
   viewAllHidden: products.length > config.homeLimit ? '' : 'hidden',
   count: `${products.length} ${products.length === 1 ? 'piece' : 'pieces'}`,
   bestsellers: best.map(p => cardHTML(p)).join(''),
