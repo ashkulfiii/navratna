@@ -474,3 +474,10 @@ body.no-scroll { overflow: hidden; }
   .polaroid:nth-child(6) { left: 80%; top: 0;  --r: 3deg;  z-index: 3; }
 }
 @media (prefers-reduced-motion: reduce) { .polaroid { transition: none; } }
+
+/* Footer: about Navya */
+.site-footer .footer-about { display: grid; gap: .6rem; justify-items: start; text-align: left; max-width: 24rem; line-height: 1.7; }
+@media (min-width: 768px) { .site-footer .footer-about { justify-self: end; } }
+.site-footer .footer-title { font-family: var(--font-display); font-size: 1.125rem; color: var(--foreground); }
+.site-footer .footer-about a { font-size: 11px; text-transform: uppercase; letter-spacing: .25em; color: var(--foreground); border-bottom: 1px solid color-mix(in oklch, var(--foreground) 30%, transparent); padding-bottom: 2px; }
+.site-footer .footer-about a:hover { border-color: var(--foreground); }
