@@ -568,3 +568,15 @@ body.no-scroll { overflow: hidden; }
 
 /* Phones: standard view is already one per row, so hide the duplicate "one at a time" button */
 @media (max-width: 639px) { .views button[data-view="single"] { display: none; } }
+
+/* Footer: keep wrapped links together instead of spreading across the column height */
+.site-footer .links { align-content: flex-start; }
+
+/* Phones and tablets: the logo, text and buttons fill the first screen,
+   so the arch photos start just below it and are never cut off on load */
+@media (max-width: 899px) {
+  .hero-mauve .hero-copy {
+    min-height: calc(100svh - 4.5rem - 3.5rem - env(safe-area-inset-top, 0px));
+    align-content: center;
+  }
+}
