@@ -565,3 +565,6 @@ body.no-scroll { overflow: hidden; }
 .site-footer .footer-about a.footer-insta { display: inline-flex; align-items: center; gap: .5rem; border-bottom: 0; padding-bottom: 0; text-transform: none; letter-spacing: .02em; font-size: .875rem; color: var(--muted-foreground); }
 .site-footer .footer-about a.footer-insta:hover { color: var(--foreground); }
 .footer-insta svg { width: 1.1rem; height: 1.1rem; }
+
+/* Phones: standard view is already one per row, so hide the duplicate "one at a time" button */
+@media (max-width: 639px) { .views button[data-view="single"] { display: none; } }
