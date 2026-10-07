@@ -12,9 +12,9 @@ export const config = {
     // Collection shown under "Collection" on the home page. Use 'all' to show every product.
     homeCollection: 'all',
     // Product handles shown in the home page "Bestseller" strip (first 3 used).
-    bestsellers: ['terracotta-rose-pendant', 'noir-tulip-drops', 'blush-bouquet-drops'],
+    bestsellers: ['jewelry-example-product-1', 'pendant-copy', 'spring-drop-earring'],
     // Product handles for the tilted photo collage on the home page (6 shown).
-    homeCollage: ['blush-bouquet-drops', 'honeybee-garden-drops', 'terracotta-rose-pendant', 'noir-tulip-drops', 'mint-garden-drops', 'coral-tulip-drops'],
+    homeCollage: ['spring-drop-earring', 'pendant-copy-1', 'jewelry-example-product-1', 'pendant-copy'],
   },
 
   assets: {

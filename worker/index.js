@@ -1,16 +1,16 @@
 // Runs only for the paths listed in wrangler.jsonc "run_worker_first".
 // Everything else is served straight from the static files in dist/.
 
-// Original listings archived on 2026-10-03; each piece now lives under a new name.
-const RENAMED = {
-  'jewelry-example-product-1': 'terracotta-rose-pendant',
-  'pendant-copy': 'noir-tulip-drops',
-  'spring-drop-earring': 'blush-bouquet-drops',
-  'pendant-copy-1': 'honeybee-garden-drops',
+// On 2026-10-07 the store went back to the four original listings; the newer duplicates were archived.
+const BACK_TO_ORIGINAL = {
+  'terracotta-rose-pendant': 'jewelry-example-product-1',
+  'noir-tulip-drops': 'pendant-copy',
+  'blush-bouquet-drops': 'spring-drop-earring',
+  'honeybee-garden-drops': 'pendant-copy-1',
 };
 
 const REDIRECTS = [
-  [/^\/products?\/(jewelry-example-product-1|pendant-copy|spring-drop-earring|pendant-copy-1)\/?$/, m => `/product/${RENAMED[m[1]]}`],
+  [/^\/products?\/(terracotta-rose-pendant|noir-tulip-drops|blush-bouquet-drops|honeybee-garden-drops)\/?$/, m => `/product/${BACK_TO_ORIGINAL[m[1]]}`],
   // Old Shopify-style URLs, so links shared before the rebuild keep working.
   [/^\/products\/([^/]+)\/?$/, m => `/product/${m[1]}`],
   [/^\/collections(\/.*)?$/, () => '/shop'],
