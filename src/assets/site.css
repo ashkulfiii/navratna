@@ -580,3 +580,8 @@ body.no-scroll { overflow: hidden; }
     align-content: center;
   }
 }
+
+/* Phones and tablets: sit the logo a little closer to the top instead of centering it */
+@media (max-width: 899px) {
+  .hero-mauve .hero-copy { align-content: start; padding-top: .75rem; }
+}
